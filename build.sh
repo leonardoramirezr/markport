@@ -7,18 +7,27 @@ APP_BUNDLE="${BUILD_DIR}/${APP_NAME}.app"
 
 rm -rf "${BUILD_DIR}"
 mkdir -p "${APP_BUNDLE}/Contents/MacOS"
-mkdir -p "${APP_BUNDLE}/Contents/Resources/Fonts"
+mkdir -p "${APP_BUNDLE}/Contents/Resources"
 
 echo "Compilando..."
 xcrun swiftc \
+    -O -wmo \
     -parse-as-library \
     -o "${APP_BUNDLE}/Contents/MacOS/${APP_NAME}" \
-    src/*.swift \
+    $(find src -name '*.swift' | sort) \
     -framework AppKit \
     -framework Foundation \
-    -framework CoreText
+    -framework CoreText \
+    -framework WebKit \
+    -framework SwiftUI \
+    -framework UniformTypeIdentifiers
 
 cp Info.plist "${APP_BUNDLE}/Contents/Info.plist"
+
+if [ ! -f Resources/Icon/AppIcon.icns ]; then
+    echo "Generando icono..."
+    bash tools/make-icon.sh
+fi
 cp Resources/Icon/AppIcon.icns "${APP_BUNDLE}/Contents/Resources/AppIcon.icns"
 
 echo "Firmando app..."
