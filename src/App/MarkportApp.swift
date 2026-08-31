@@ -26,6 +26,9 @@ struct MarkportApp: App {
                 .keyboardShortcut("n")
             }
             CommandGroup(after: .saveItem) {
+                Button("Vista previa") { state.showingPreview = true }
+                    .keyboardShortcut("p")
+                    .disabled(store.styles.isEmpty)
                 Button("Exportar PDF…") { state.export(store: store) }
                     .keyboardShortcut("e")
                     .disabled(store.styles.isEmpty)

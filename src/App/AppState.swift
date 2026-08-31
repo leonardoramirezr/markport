@@ -6,6 +6,7 @@ final class AppState: ObservableObject {
     @Published var selectedStyleID: String?
     @Published var editing: DocStyle?
     @Published var isExporting = false
+    @Published var showingPreview = false
     @Published var message: Message?
 
     /// El Markdown vive en el NSTextView; aquí solo guardamos la última

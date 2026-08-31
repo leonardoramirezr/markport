@@ -160,25 +160,48 @@ struct EditorPane: View {
                     .transition(.move(edge: .bottom).combined(with: .opacity))
             }
 
-            Button {
-                state.export(store: store)
-            } label: {
-                HStack(spacing: 7) {
-                    if state.isExporting {
-                        ProgressView().controlSize(.small).scaleEffect(0.7).frame(width: 12, height: 12)
-                    } else {
-                        Image(systemName: "arrow.down.doc").font(.system(size: 12, weight: .medium))
+            HStack(spacing: 10) {
+                Button {
+                    state.showingPreview = true
+                } label: {
+                    HStack(spacing: 7) {
+                        Image(systemName: "eye").font(.system(size: 12, weight: .medium))
+                        Text("Vista previa")
                     }
-                    Text(state.isExporting ? "Exportando…" : "Exportar PDF")
                 }
+                .buttonStyle(PrimaryButtonStyle(prominent: false))
+                .shadow(color: .black.opacity(0.12), radius: 8, y: 2)
+                .help("Vista previa del documento (⌘P)")
+
+                Button {
+                    state.export(store: store)
+                } label: {
+                    HStack(spacing: 7) {
+                        if state.isExporting {
+                            ProgressView().controlSize(.small).scaleEffect(0.7).frame(width: 12, height: 12)
+                        } else {
+                            Image(systemName: "arrow.down.doc").font(.system(size: 12, weight: .medium))
+                        }
+                        Text(state.isExporting ? "Exportando…" : "Exportar PDF")
+                    }
+                }
+                .buttonStyle(PrimaryButtonStyle())
+                .disabled(state.isExporting)
+                .shadow(color: .black.opacity(0.18), radius: 10, y: 3)
+                .help("Exportar a PDF con el estilo seleccionado (⌘E)")
             }
-            .buttonStyle(PrimaryButtonStyle())
-            .disabled(state.isExporting)
-            .shadow(color: .black.opacity(0.18), radius: 10, y: 3)
             .padding(22)
-            .help("Exportar a PDF con el estilo seleccionado (⌘E)")
         }
         .animation(.easeOut(duration: 0.18), value: state.message?.id)
+        .sheet(isPresented: $state.showingPreview) {
+            if let style = state.style(in: store) {
+                DocumentPreviewView(style: style, markdown: previewMarkdown)
+            }
+        }
+    }
+
+    private var previewMarkdown: String {
+        state.markdownController.text.isEmpty ? state.markdown : state.markdownController.text
     }
 }
 
