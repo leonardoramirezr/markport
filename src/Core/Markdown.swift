@@ -1,7 +1,7 @@
 import Foundation
 
 /// Conversor Markdown -> HTML autocontenido (sin dependencias externas).
-/// Cubre el subconjunto útil para documentos/CV: encabezados, párrafos, listas
+/// Cubre el subconjunto útil para documentos: encabezados, párrafos, listas
 /// anidadas, citas, reglas, bloques de código, tablas GFM y HTML embebido.
 enum Markdown {
 

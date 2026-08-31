@@ -20,9 +20,9 @@ enum Renderer {
         if !injected {
             // Plantilla sin marcador: inyectamos el contenido dentro del body.
             if let range = html.range(of: "</body>", options: .caseInsensitive) {
-                html.replaceSubrange(range, with: "<article class=\"resume\">\n\(content)\n</article>\n</body>")
+                html.replaceSubrange(range, with: "<article class=\"doc\">\n\(content)\n</article>\n</body>")
             } else {
-                html += "\n<article class=\"resume\">\n\(content)\n</article>\n"
+                html += "\n<article class=\"doc\">\n\(content)\n</article>\n"
             }
         }
 

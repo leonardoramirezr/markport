@@ -11,7 +11,7 @@ enum DefaultAssets {
     <link rel="stylesheet" href="style.css">
     </head>
     <body>
-    <article class="resume">
+    <article class="doc">
     {{ content }}
     </article>
     </body>
@@ -38,15 +38,15 @@ enum DefaultAssets {
         padding: 0;
     }
 
-    .resume {
+    .doc {
         font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
         font-size: 10.5pt;
         line-height: 1.45;
         color: #1a1a1a;
     }
 
-    /* Nombre */
-    .resume > h1:first-child {
+    /* Título principal */
+    .doc > h1:first-child {
         font-family: Menlo, "Courier New", monospace;
         font-size: 26pt;
         font-weight: 700;
@@ -55,7 +55,7 @@ enum DefaultAssets {
         margin: 0 0 4pt 0;
     }
 
-    /* Línea de contacto bajo el nombre */
+    /* Subtítulo bajo el título principal */
     h1 + p {
         text-align: center;
         font-size: 9.2pt;
