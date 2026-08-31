@@ -7,7 +7,6 @@ import SwiftUI
 final class PreviewCache: ObservableObject {
     @Published private(set) var images: [String: NSImage] = [:]
 
-    private lazy var renderer = WebRenderer()
     private var inFlight = Set<String>()
     private var queue: [DocStyle] = []
     private var working = false
@@ -49,7 +48,7 @@ final class PreviewCache: ObservableObject {
             let k = self.key(style)
             if let data = try? Data(contentsOf: self.diskURL(k)), let cached = NSImage(data: data) {
                 self.images[k] = cached
-            } else if let image = try? await self.renderer.snapshot(markdown: DefaultAssets.sampleMarkdown,
+            } else if let image = try? await WebRenderer().snapshot(markdown: DefaultAssets.sampleMarkdown,
                                                                     style: style,
                                                                     width: self.width) {
                 self.images[k] = image

@@ -14,7 +14,6 @@ final class AppState: ObservableObject {
     var markdown: String
 
     let markdownController = EditorController()
-    private lazy var renderer = WebRenderer()
     private var saveWork: DispatchWorkItem?
 
     struct Message: Identifiable {
@@ -64,7 +63,9 @@ final class AppState: ObservableObject {
         isExporting = true
         Task {
             do {
-                try await renderer.exportPDF(markdown: text, style: style, to: destination)
+                // A fresh renderer per export avoids WKWebView's internal
+                // resource cache serving a stale style.css after edits.
+                try await WebRenderer().exportPDF(markdown: text, style: style, to: destination)
                 message = Message(text: "PDF exported to \(destination.lastPathComponent)", fileURL: destination)
             } catch {
                 message = Message(text: error.localizedDescription, isError: true)
