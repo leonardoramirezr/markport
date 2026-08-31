@@ -26,7 +26,10 @@ enum Renderer {
             }
         }
 
-        var head = extraHead
+        // WebKit's print engine drops CSS background colors by default (an
+        // ink-saving convention); without this, `html`/`body` backgrounds
+        // that render fine on screen turn white in the exported PDF.
+        var head = "<style id=\"markport-print-color\">html,body{-webkit-print-color-adjust:exact;print-color-adjust:exact;}</style>\n" + extraHead
         let lower = html.lowercased()
         if !lower.contains("rel=\"stylesheet\"") && !lower.contains("rel='stylesheet'") && !lower.contains("<style") {
             head = "<link rel=\"stylesheet\" href=\"style.css\">\n" + head
@@ -81,7 +84,6 @@ enum Renderer {
         """
         <style id="markport-preview">
         @media screen {
-          html { background: #ffffff; }
           body { padding: \(page.top)pt \(page.right)pt \(page.bottom)pt \(page.left)pt; }
         }
         </style>
