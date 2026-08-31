@@ -19,7 +19,7 @@ enum Theme {
     }
 }
 
-/// Fondo translúcido nativo para la barra lateral.
+/// Native translucent background for the sidebar.
 struct SidebarBackground: NSViewRepresentable {
     func makeNSView(context: Context) -> NSVisualEffectView {
         let view = NSVisualEffectView()
@@ -32,7 +32,7 @@ struct SidebarBackground: NSViewRepresentable {
     func updateNSView(_ view: NSVisualEffectView, context: Context) {}
 }
 
-/// Botón primario monocromo, sin adornos.
+/// Monochrome primary button, no decoration.
 struct PrimaryButtonStyle: ButtonStyle {
     var prominent = true
     func makeBody(configuration: Configuration) -> some View {
@@ -49,7 +49,7 @@ struct PrimaryButtonStyle: ButtonStyle {
     }
 }
 
-/// Botón discreto para barras y toolbars.
+/// Quiet button for bars and toolbars.
 struct QuietButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label

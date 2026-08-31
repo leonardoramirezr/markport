@@ -5,7 +5,7 @@ import UniformTypeIdentifiers
 struct OnboardingView: View {
     @EnvironmentObject private var store: StyleStore
     @EnvironmentObject private var state: AppState
-    @State private var name = "Mi estilo"
+    @State private var name = "My style"
 
     var body: some View {
         ZStack {
@@ -16,18 +16,18 @@ struct OnboardingView: View {
                     Text("Markport")
                         .font(.system(size: 28, weight: .semibold))
                         .tracking(-0.5)
-                    Text("Markdown a PDF con tus propios estilos.")
+                    Text("Markdown to PDF with your own styles.")
                         .font(.system(size: 13))
                         .foregroundStyle(.secondary)
                 }
                 .padding(.bottom, 34)
 
                 VStack(alignment: .leading, spacing: 12) {
-                    Text("Para empezar, define un estilo")
+                    Text("To get started, define a style")
                         .font(.system(size: 12, weight: .semibold))
                         .foregroundStyle(.secondary)
 
-                    TextField("Nombre del estilo", text: $name)
+                    TextField("Style name", text: $name)
                         .textFieldStyle(.plain)
                         .font(.system(size: 14))
                         .padding(.horizontal, 12)
@@ -39,14 +39,14 @@ struct OnboardingView: View {
                         .onSubmit(create)
 
                     HStack(spacing: 10) {
-                        Button("Crear estilo", action: create)
+                        Button("Create style", action: create)
                             .buttonStyle(PrimaryButtonStyle())
-                        Button("Importar CSS…", action: importCSS)
+                        Button("Import CSS…", action: importCSS)
                             .buttonStyle(PrimaryButtonStyle(prominent: false))
                     }
                     .padding(.top, 2)
 
-                    Text("Un estilo son dos archivos: una hoja CSS y una plantilla HTML con {{ title }} y {{ content }}. Podrás editarlos cuando quieras.")
+                    Text("A style is two files: a CSS sheet and an HTML template with {{ title }} and {{ content }}. You can edit them anytime.")
                         .font(.system(size: 11))
                         .foregroundStyle(Theme.faint)
                         .fixedSize(horizontal: false, vertical: true)
@@ -61,7 +61,7 @@ struct OnboardingView: View {
 
     private func create() {
         let clean = name.trimmingCharacters(in: .whitespacesAndNewlines)
-        var style = DocStyle.new(name: store.uniqueName(base: clean.isEmpty ? "Estilo" : clean))
+        var style = DocStyle.new(name: store.uniqueName(base: clean.isEmpty ? "Style" : clean))
         style.css = DefaultAssets.css
         state.editing = style
     }
@@ -70,13 +70,13 @@ struct OnboardingView: View {
         let panel = NSOpenPanel()
         panel.allowedContentTypes = [UTType(filenameExtension: "css") ?? .plainText]
         panel.allowsMultipleSelection = false
-        panel.title = "Elegir hoja de estilo"
+        panel.title = "Choose style sheet"
         guard panel.runModal() == .OK, let url = panel.url,
               let css = try? String(contentsOf: url, encoding: .utf8) else { return }
         let base = url.deletingPathExtension().lastPathComponent
         var style = DocStyle.new(name: store.uniqueName(base: base))
         style.css = css
-        // Arrastra recursos vecinos (por ejemplo la carpeta `fonts/`).
+        // Pulls in neighboring resources (e.g. the `fonts/` folder).
         let neighbour = url.deletingLastPathComponent().appendingPathComponent("fonts", isDirectory: true)
         if FileManager.default.fileExists(atPath: neighbour.path) {
             try? FileManager.default.createDirectory(at: style.folder, withIntermediateDirectories: true)

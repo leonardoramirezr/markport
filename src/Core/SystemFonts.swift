@@ -1,7 +1,7 @@
 import AppKit
 import Foundation
 
-/// Fuentes disponibles en el sistema y verificación de las que usa un CSS.
+/// Fonts available on the system and verification of the ones a CSS uses.
 enum SystemFonts {
 
     static let generic: Set<String> = [
@@ -28,7 +28,7 @@ enum SystemFonts {
         return NSFont(name: name.trimmingCharacters(in: CharacterSet(charactersIn: "\"' ")), size: 12) != nil
     }
 
-    /// Familias citadas en el CSS que no están instaladas ni empaquetadas vía @font-face.
+    /// Families referenced in the CSS that are neither installed nor bundled via @font-face.
     static func missingFamilies(in css: String) -> [String] {
         let (body, bundled) = stripFontFaces(css)
         var missing: [String] = []
@@ -47,7 +47,7 @@ enum SystemFonts {
         return missing
     }
 
-    /// Familias declaradas con @font-face (archivos que viajan con el estilo).
+    /// Families declared with @font-face (files that ship with the style).
     private static func stripFontFaces(_ css: String) -> (String, Set<String>) {
         var body = ""
         var bundled = Set<String>()
@@ -101,7 +101,7 @@ enum SystemFonts {
         name.trimmingCharacters(in: CharacterSet(charactersIn: " \n\t\"';")).lowercased()
     }
 
-    /// Declaración lista para pegar en el CSS.
+    /// Declaration ready to paste into the CSS.
     static func declaration(for family: String) -> String {
         let fallback: String
         if let font = NSFont(name: family, size: 12), font.isFixedPitch {
@@ -116,7 +116,7 @@ enum SystemFonts {
 
     private static func isSerif(_ family: String) -> Bool {
         guard let descriptor = NSFont(name: family, size: 12)?.fontDescriptor else { return false }
-        // Clases tipográficas con serifas según CoreText (bits 28-31).
+        // Serif typographic classes per CoreText (bits 28-31).
         let serifClasses: Set<UInt32> = [1, 2, 3, 4, 5, 7]
         let fontClass = (descriptor.symbolicTraits.rawValue & 0xF000_0000) >> 28
         return serifClasses.contains(fontClass)

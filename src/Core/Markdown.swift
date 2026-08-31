@@ -1,8 +1,8 @@
 import Foundation
 
-/// Conversor Markdown -> HTML autocontenido (sin dependencias externas).
-/// Cubre el subconjunto útil para documentos: encabezados, párrafos, listas
-/// anidadas, citas, reglas, bloques de código, tablas GFM y HTML embebido.
+/// Self-contained Markdown -> HTML converter (no external dependencies).
+/// Covers the useful subset for documents: headings, paragraphs, nested
+/// lists, blockquotes, rules, code blocks, GFM tables, and embedded HTML.
 enum Markdown {
 
     static func html(from markdown: String) -> String {
@@ -11,7 +11,7 @@ enum Markdown {
             .replacingOccurrences(of: "\r", with: "\n")
             .replacingOccurrences(of: "\t", with: "    ")
         var lines = normalized.components(separatedBy: "\n")
-        // Quita el front-matter YAML si existe.
+        // Strips YAML front matter if present.
         if lines.first?.trimmingCharacters(in: .whitespaces) == "---",
            let end = lines.dropFirst().firstIndex(where: { $0.trimmingCharacters(in: .whitespaces) == "---" }) {
             lines.removeSubrange(0...end)
@@ -20,7 +20,7 @@ enum Markdown {
         return blocks(lines, &index, stopIndent: nil)
     }
 
-    /// Primer encabezado nivel 1 (o el primer texto útil) para el <title>.
+    /// First level-1 heading (or the first useful text) for the <title>.
     static func title(from markdown: String) -> String {
         for raw in markdown.components(separatedBy: .newlines) {
             let line = raw.trimmingCharacters(in: .whitespaces)
@@ -30,10 +30,10 @@ enum Markdown {
                     .trimmingCharacters(in: .whitespaces)
             }
         }
-        return "Documento"
+        return "Document"
     }
 
-    // MARK: - Bloques
+    // MARK: - Blocks
 
     private static func blocks(_ lines: [String], _ i: inout Int, stopIndent: Int?) -> String {
         var out = ""
@@ -165,8 +165,8 @@ enum Markdown {
         while i < lines.count {
             let line = lines[i]
             if line.trimmingCharacters(in: .whitespaces).isEmpty {
-                // Una línea en blanco solo continúa la lista si el siguiente
-                // bloque sigue perteneciendo a ella.
+                // A blank line only continues the list if the next
+                // block still belongs to it.
                 var look = i + 1
                 while look < lines.count, lines[look].trimmingCharacters(in: .whitespaces).isEmpty { look += 1 }
                 guard look < lines.count else { i = lines.count; break }
@@ -211,7 +211,7 @@ enum Markdown {
         return out
     }
 
-    /// Listas compactas: `<li><p>x</p></li>` -> `<li>x</li>`.
+    /// Compact lists: `<li><p>x</p></li>` -> `<li>x</li>`.
     private static func unwrapSingleParagraph(_ html: String) -> String {
         let trimmed = html.trimmingCharacters(in: .whitespacesAndNewlines)
         guard trimmed.hasPrefix("<p>") else { return html }
@@ -222,7 +222,7 @@ enum Markdown {
         return head + tail
     }
 
-    // MARK: - Tablas
+    // MARK: - Tables
 
     private static func table(_ lines: [String], _ i: inout Int) -> String? {
         guard i + 1 < lines.count else { return nil }
@@ -283,7 +283,7 @@ enum Markdown {
         return cells
     }
 
-    // MARK: - HTML embebido y parrafos
+    // MARK: - Embedded HTML and paragraphs
 
     private static let blockTags: Set<String> = [
         "div", "section", "article", "header", "footer", "aside", "nav", "table",
@@ -347,7 +347,7 @@ enum Markdown {
     }
 
     private static func escapeText(_ text: String) -> String {
-        // En texto corriente respetamos entidades ya escritas (&nbsp; &amp; ...).
+        // In regular text we preserve entities that are already written (&nbsp; &amp; ...).
         var out = ""
         let chars = Array(text)
         var k = 0
@@ -396,7 +396,7 @@ enum Markdown {
                 buffer.append(chars[i + 1]); i += 2; continue
             }
 
-            // Código en línea
+            // Inline code
             if ch == "`" {
                 var run = 0
                 while i + run < chars.count, chars[i + run] == "`" { run += 1 }
@@ -409,7 +409,7 @@ enum Markdown {
                 }
             }
 
-            // Imagen
+            // Image
             if ch == "!", i + 1 < chars.count, chars[i + 1] == "[",
                let link = parseLink(chars, from: i + 1) {
                 flush()
@@ -419,7 +419,7 @@ enum Markdown {
                 continue
             }
 
-            // Enlace
+            // Link
             if ch == "[", let link = parseLink(chars, from: i) {
                 flush()
                 out += "<a href=\"\(escape(link.url))\""
@@ -429,7 +429,7 @@ enum Markdown {
                 continue
             }
 
-            // Autolink y HTML en línea
+            // Autolink and inline HTML
             if ch == "<", let close = chars[i...].firstIndex(of: ">") {
                 let content = String(chars[(i + 1)..<close])
                 if content.hasPrefix("http://") || content.hasPrefix("https://") {
@@ -453,7 +453,7 @@ enum Markdown {
                 }
             }
 
-            // Énfasis
+            // Emphasis
             if ch == "*" || ch == "_" || ch == "~" {
                 var run = 0
                 while i + run < chars.count, chars[i + run] == ch { run += 1 }
@@ -485,7 +485,7 @@ enum Markdown {
         let next = i + run < chars.count ? chars[i + run] : nil
         guard let n = next, !n.isWhitespace else { return false }
         guard char == "_" else { return true }
-        // `_` no rompe palabras (snake_case).
+        // `_` doesn't break inside words (snake_case).
         let prev = i > 0 ? chars[i - 1] : nil
         if let p = prev, p.isLetter || p.isNumber { return false }
         return true

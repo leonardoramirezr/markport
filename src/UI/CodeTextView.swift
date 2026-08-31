@@ -1,8 +1,8 @@
 import AppKit
 import SwiftUI
 
-/// Puente hacia el NSTextView para insertar texto en el cursor
-/// y leer el contenido sin pasar por SwiftUI en cada tecla.
+/// Bridge to the NSTextView to insert text at the cursor
+/// and read its content without going through SwiftUI on every keystroke.
 final class EditorController: ObservableObject {
     weak var textView: NSTextView?
 
@@ -24,8 +24,8 @@ final class EditorController: ObservableObject {
     }
 }
 
-/// Editor de texto plano sobre NSTextView: rápido con documentos largos y
-/// con notificación de cambios amortiguada para no redibujar SwiftUI.
+/// Plain text editor on top of NSTextView: fast with long documents and
+/// with debounced change notifications so SwiftUI doesn't redraw on every keystroke.
 struct CodeTextView: NSViewRepresentable {
     let initialText: String
     var font: NSFont

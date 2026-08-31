@@ -1,8 +1,8 @@
 import AppKit
 import SwiftUI
 
-/// Miniaturas de estilos en formato página. Se generan de una en una fuera de
-/// pantalla, se memorizan en RAM y se guardan en disco para arranques rápidos.
+/// Style thumbnails in page format. Generated one at a time off-screen,
+/// cached in RAM, and saved to disk for fast startups.
 @MainActor
 final class PreviewCache: ObservableObject {
     @Published private(set) var images: [String: NSImage] = [:]
@@ -19,7 +19,7 @@ final class PreviewCache: ObservableObject {
         StyleStore.cacheRoot.appendingPathComponent("\(key).png")
     }
 
-    /// Lectura pura: no muta estado durante el dibujado de SwiftUI.
+    /// Pure read: doesn't mutate state during SwiftUI's drawing pass.
     func image(for style: DocStyle) -> NSImage? {
         if let image = images[key(style)] { return image }
         DispatchQueue.main.async { [weak self] in self?.request(style) }
@@ -65,7 +65,7 @@ final class PreviewCache: ObservableObject {
         guard let tiff = image.tiffRepresentation,
               let bitmap = NSBitmapImageRep(data: tiff),
               let png = bitmap.representation(using: .png, properties: [:]) else { return }
-        // Limpia miniaturas antiguas del mismo estilo.
+        // Cleans up old thumbnails for the same style.
         let fm = FileManager.default
         let files = (try? fm.contentsOfDirectory(at: StyleStore.cacheRoot, includingPropertiesForKeys: nil)) ?? []
         for file in files where file.lastPathComponent.hasPrefix(styleID) && file.lastPathComponent != "\(key).png" {

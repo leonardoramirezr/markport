@@ -2,7 +2,7 @@ import Foundation
 
 enum Renderer {
 
-    /// Ensambla la plantilla HTML del estilo con el HTML derivado del Markdown.
+    /// Assembles the style's HTML template with the HTML derived from the Markdown.
     static func document(markdown: String, style: DocStyle, extraHead: String = "") -> String {
         let content = Markdown.html(from: markdown)
         let title = Markdown.title(from: markdown)
@@ -18,7 +18,7 @@ enum Renderer {
             html = html.replacingOccurrences(of: token, with: Markdown.escape(title))
         }
         if !injected {
-            // Plantilla sin marcador: inyectamos el contenido dentro del body.
+            // Template without a marker: inject the content inside the body.
             if let range = html.range(of: "</body>", options: .caseInsensitive) {
                 html.replaceSubrange(range, with: "<article class=\"doc\">\n\(content)\n</article>\n</body>")
             } else {
@@ -41,12 +41,12 @@ enum Renderer {
         return html
     }
 
-    /// Nombre de hoja usado por las vistas previas: mantiene el CSS borrador
-    /// separado del `style.css` guardado, para que Cancelar no deje rastro.
+    /// Sheet name used by previews: keeps the draft CSS
+    /// separate from the saved `style.css`, so Cancel leaves no trace.
     static let draftCSSName = ".markport-draft.css"
 
-    /// Escribe el documento dentro de la carpeta del estilo para que las rutas
-    /// relativas (`style.css`, `fonts/...`) resuelvan igual que en disco.
+    /// Writes the document inside the style's folder so relative paths
+    /// (`style.css`, `fonts/...`) resolve the same way as on disk.
     @discardableResult
     static func writeRenderFile(markdown: String,
                                 style: DocStyle,
@@ -54,7 +54,7 @@ enum Renderer {
                                 cssFilename: String = "style.css",
                                 extraHead: String = "") throws -> URL {
         try FileManager.default.createDirectory(at: style.folder, withIntermediateDirectories: true)
-        // La hoja debe existir junto al documento para que `href` relativo resuelva.
+        // The sheet must exist alongside the document for the relative `href` to resolve.
         let cssURL = style.folder.appendingPathComponent(cssFilename)
         try style.css.write(to: cssURL, atomically: true, encoding: .utf8)
 
@@ -67,7 +67,7 @@ enum Renderer {
         return url
     }
 
-    /// Borra los archivos de trabajo que dejan las vistas previas.
+    /// Deletes the working files left behind by previews.
     static func removeTemporaryFiles(in style: DocStyle) {
         let fm = FileManager.default
         for name in [".markport-live.html", ".markport-preview.html",
@@ -76,7 +76,7 @@ enum Renderer {
         }
     }
 
-    /// CSS solo-pantalla que simula los márgenes de `@page` en la vista previa.
+    /// Screen-only CSS that simulates the `@page` margins in the preview.
     static func previewHead(page: PageSetup) -> String {
         """
         <style id="markport-preview">

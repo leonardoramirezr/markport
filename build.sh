@@ -9,7 +9,7 @@ rm -rf "${BUILD_DIR}"
 mkdir -p "${APP_BUNDLE}/Contents/MacOS"
 mkdir -p "${APP_BUNDLE}/Contents/Resources"
 
-echo "Compilando..."
+echo "Compiling..."
 xcrun swiftc \
     -O -wmo \
     -parse-as-library \
@@ -25,12 +25,12 @@ xcrun swiftc \
 cp Info.plist "${APP_BUNDLE}/Contents/Info.plist"
 
 if [ ! -f Resources/Icon/AppIcon.icns ]; then
-    echo "Generando icono..."
+    echo "Generating icon..."
     bash tools/make-icon.sh
 fi
 cp Resources/Icon/AppIcon.icns "${APP_BUNDLE}/Contents/Resources/AppIcon.icns"
 
-echo "Firmando app..."
+echo "Signing app..."
 codesign --force --deep --sign - "${APP_BUNDLE}"
 
-echo "Listo: ${APP_BUNDLE}"
+echo "Done: ${APP_BUNDLE}"

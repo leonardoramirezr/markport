@@ -47,11 +47,11 @@ struct StyleEditorView: View {
         .onAppear { missing = SystemFonts.missingFamilies(in: draft.css) }
     }
 
-    // MARK: Cabecera
+    // MARK: Header
 
     private var header: some View {
         HStack(spacing: 12) {
-            TextField("Nombre del estilo", text: $draft.name)
+            TextField("Style name", text: $draft.name)
                 .textFieldStyle(.plain)
                 .font(.system(size: 15, weight: .semibold))
                 .frame(maxWidth: 280, alignment: .leading)
@@ -65,18 +65,18 @@ struct StyleEditorView: View {
 
             Spacer()
 
-            Button("Cancelar") {
+            Button("Cancel") {
                 Renderer.removeTemporaryFiles(in: draft)
                 if isNew { try? FileManager.default.removeItem(at: draft.folder) }
                 dismiss()
             }
             .buttonStyle(QuietButtonStyle())
 
-            Button("Guardar") {
+            Button("Save") {
                 syncFromEditors()
                 var clean = draft
                 clean.name = draft.name.trimmingCharacters(in: .whitespacesAndNewlines)
-                if clean.name.isEmpty { clean.name = store.uniqueName(base: "Estilo") }
+                if clean.name.isEmpty { clean.name = store.uniqueName(base: "Style") }
                 let saved = store.save(clean)
                 Renderer.removeTemporaryFiles(in: saved)
                 previews.invalidate(saved)
@@ -90,7 +90,7 @@ struct StyleEditorView: View {
         .padding(.vertical, 14)
     }
 
-    // MARK: Editores
+    // MARK: Editors
 
     private var editorColumn: some View {
         VStack(spacing: 0) {
@@ -124,7 +124,7 @@ struct StyleEditorView: View {
                     Image(systemName: "exclamationmark.triangle")
                         .font(.system(size: 10))
                         .foregroundStyle(.orange)
-                    Text("No instaladas en el sistema: \(missing.joined(separator: ", ")). El PDF usara una fuente sustituta.")
+                    Text("Not installed on the system: \(missing.joined(separator: ", ")). The PDF will use a substitute font.")
                         .font(.system(size: 11))
                         .foregroundStyle(.secondary)
                         .fixedSize(horizontal: false, vertical: true)
@@ -135,14 +135,14 @@ struct StyleEditorView: View {
                     syncFromEditors()
                     showingFonts = true
                 } label: {
-                    Label("Fuente del sistema…", systemImage: "textformat")
+                    Label("System font…", systemImage: "textformat")
                 }
                 .buttonStyle(QuietButtonStyle())
 
-                Button("Subir archivo…") { importFile() }
+                Button("Upload file…") { importFile() }
                     .buttonStyle(QuietButtonStyle())
 
-                Button("Añadir fuente…") { importFontFile() }
+                Button("Add font…") { importFontFile() }
                     .buttonStyle(QuietButtonStyle())
 
                 Spacer()
@@ -156,12 +156,12 @@ struct StyleEditorView: View {
         .padding(.vertical, 12)
     }
 
-    // MARK: Vista previa
+    // MARK: Preview
 
     private var previewColumn: some View {
         VStack(spacing: 0) {
             HStack {
-                Text("Vista previa")
+                Text("Preview")
                     .font(.system(size: 11, weight: .semibold))
                     .foregroundStyle(.secondary)
                 Spacer()
@@ -172,7 +172,7 @@ struct StyleEditorView: View {
                 }
                 .buttonStyle(.plain)
                 .foregroundStyle(Theme.faint)
-                .help("Actualizar vista previa")
+                .help("Refresh preview")
             }
             .padding(.horizontal, 16)
             .padding(.top, 14)
@@ -205,7 +205,7 @@ struct StyleEditorView: View {
             ? DefaultAssets.sampleMarkdown : text
     }
 
-    // MARK: Acciones
+    // MARK: Actions
 
     private func syncFromEditors() {
         if let css = cssController.textView?.string { draft.css = css }
@@ -217,7 +217,7 @@ struct StyleEditorView: View {
         let panel = NSOpenPanel()
         panel.allowedContentTypes = [UTType(filenameExtension: "css") ?? .plainText,
                                      .html, .plainText]
-        panel.title = "Subir CSS o HTML"
+        panel.title = "Upload CSS or HTML"
         guard panel.runModal() == .OK, let url = panel.url,
               let text = try? String(contentsOf: url, encoding: .utf8) else { return }
         if url.pathExtension.lowercased() == "css" {
@@ -238,7 +238,7 @@ struct StyleEditorView: View {
         panel.allowedContentTypes = [UTType(filenameExtension: "woff2") ?? .data,
                                      UTType(filenameExtension: "woff") ?? .data,
                                      .font]
-        panel.title = "Añadir archivos de fuente al estilo"
+        panel.title = "Add font files to style"
         guard panel.runModal() == .OK else { return }
         var added: [String] = []
         for url in panel.urls {
@@ -269,8 +269,8 @@ struct StyleEditorView: View {
     }
 }
 
-/// Vista previa en vivo: WKWebView cargado desde la carpeta del estilo,
-/// escalado para que el ancho de papel coincida con el panel.
+/// Live preview: WKWebView loaded from the style's folder,
+/// scaled so the paper width matches the panel.
 struct StylePreviewWeb: NSViewRepresentable {
     let style: DocStyle
     let markdown: String

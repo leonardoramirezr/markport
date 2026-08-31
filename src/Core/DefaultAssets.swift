@@ -4,7 +4,7 @@ enum DefaultAssets {
 
     static let templateHTML = """
     <!DOCTYPE html>
-    <html lang="es">
+    <html lang="en">
     <head>
     <meta charset="UTF-8">
     <title>{{ title }}</title>
@@ -18,11 +18,11 @@ enum DefaultAssets {
     </html>
     """
 
-    /// Estilo base: usa únicamente fuentes instaladas en el sistema para que
-    /// funcione al primer intento; se puede cambiar desde el editor.
+    /// Base style: uses only fonts installed on the system so it
+    /// works on the first try; can be changed from the editor.
     static let css = """
-    /* Estilo Markport — edita este archivo para cambiar el PDF.
-       Markport solo inyecta el HTML derivado del Markdown en esta hoja. */
+    /* Markport style — edit this file to change the PDF.
+       Markport only injects the HTML derived from the Markdown into this sheet. */
 
     @page {
         size: Letter;
@@ -45,7 +45,7 @@ enum DefaultAssets {
         color: #1a1a1a;
     }
 
-    /* Título principal */
+    /* Main title */
     .doc > h1:first-child {
         font-family: Menlo, "Courier New", monospace;
         font-size: 26pt;
@@ -55,7 +55,7 @@ enum DefaultAssets {
         margin: 0 0 4pt 0;
     }
 
-    /* Subtítulo bajo el título principal */
+    /* Subtitle below the main title */
     h1 + p {
         text-align: center;
         font-size: 9.2pt;
@@ -156,50 +156,50 @@ enum DefaultAssets {
     }
     """
 
-    /// Documento de muestra usado en las miniaturas de la barra lateral.
+    /// Sample document used for sidebar thumbnails.
     static let sampleMarkdown = """
     # Ada Lovelace
 
-    Ciudad de México · ada@ejemplo.com · +52 55 0000 0000 · [linkedin.com/in/ada](https://linkedin.com)
+    Mexico City · ada@example.com · +52 55 0000 0000 · [linkedin.com/in/ada](https://linkedin.com)
 
-    ## Perfil
+    ## Profile
 
-    Ingeniera con ocho años de experiencia construyendo sistemas de cálculo
-    analítico y herramientas de automatización para equipos pequeños.
+    Engineer with eight years of experience building analytical
+    computing systems and automation tools for small teams.
 
-    ## Experiencia
+    ## Experience
 
-    ### Ingeniera principal
-    **Analytical Engine Co.** · *2021 — presente*
+    ### Lead Engineer
+    **Analytical Engine Co.** · *2021 — present*
 
-    - Diseño del compilador de notas y su cadena de exportación a PDF.
-    - Reducción del tiempo de render en 60% mediante cacheo de plantillas.
-    - Mentoría a tres personas del equipo de plataforma.
+    - Designed the notes compiler and its PDF export pipeline.
+    - Cut render time by 60% through template caching.
+    - Mentored three members of the platform team.
 
-    ### Ingeniera de software
+    ### Software Engineer
     **Difference Ltd.** · *2018 — 2021*
 
-    - Migración del pipeline de documentos a una arquitectura sin dependencias.
+    - Migrated the document pipeline to a dependency-free architecture.
 
-    ## Educación
+    ## Education
 
-    ### Matemáticas Aplicadas
-    **Universidad de Londres** · *2014 — 2018*
+    ### Applied Mathematics
+    **University of London** · *2014 — 2018*
 
-    ## Habilidades
+    ## Skills
 
-    Swift · WebKit · Tipografía · CSS de impresión · Automatización
+    Swift · WebKit · Typography · Print CSS · Automation
     """
 
     static let welcomeMarkdown = """
-    # Título del documento
+    # Document title
 
-    Escribe o pega aquí tu Markdown. El panel de la izquierda define
-    cómo se verá al exportar.
+    Write or paste your Markdown here. The panel on the left defines
+    how it will look when exported.
 
-    ## Sección
+    ## Section
 
-    - Punto uno
-    - Punto dos
+    - Point one
+    - Point two
     """
 }

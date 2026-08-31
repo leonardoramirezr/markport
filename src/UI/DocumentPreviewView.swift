@@ -1,7 +1,7 @@
 import SwiftUI
 
-/// Vista previa a página completa del documento con el estilo seleccionado,
-/// mostrada en una hoja aparte antes de exportar a PDF.
+/// Full-page preview of the document with the selected style,
+/// shown in a separate sheet before exporting to PDF.
 struct DocumentPreviewView: View {
     @Environment(\.dismiss) private var dismiss
 
@@ -11,7 +11,7 @@ struct DocumentPreviewView: View {
     var body: some View {
         VStack(spacing: 0) {
             HStack {
-                Text("Vista previa").font(.system(size: 13, weight: .semibold))
+                Text("Preview").font(.system(size: 13, weight: .semibold))
                 Spacer()
                 Text(style.name)
                     .font(.system(size: 11))

@@ -17,7 +17,7 @@ struct MainView: View {
     }
 }
 
-// MARK: - Barra de estilos
+// MARK: - Style sidebar
 
 struct StyleSidebar: View {
     @EnvironmentObject private var store: StyleStore
@@ -31,12 +31,12 @@ struct StyleSidebar: View {
     var body: some View {
         VStack(spacing: 0) {
             HStack {
-                Text("Estilos")
+                Text("Styles")
                     .font(.system(size: 12, weight: .semibold))
                     .foregroundStyle(.secondary)
                 Spacer()
                 Button {
-                    state.editing = DocStyle.new(name: store.uniqueName(base: "Estilo"))
+                    state.editing = DocStyle.new(name: store.uniqueName(base: "Style"))
                 } label: {
                     Image(systemName: "plus")
                         .font(.system(size: 12, weight: .medium))
@@ -44,7 +44,7 @@ struct StyleSidebar: View {
                 }
                 .buttonStyle(.plain)
                 .contentShape(Rectangle())
-                .help("Nuevo estilo (⌘N)")
+                .help("New style (⌘N)")
             }
             .padding(.horizontal, 16)
             .padding(.top, 40)
@@ -56,14 +56,14 @@ struct StyleSidebar: View {
                         StyleCard(style: style, isSelected: style.id == selectedID)
                             .onTapGesture { state.selectedStyleID = style.id }
                             .contextMenu {
-                                Button("Editar…") { state.editing = style }
-                                Button("Duplicar") { _ = store.duplicate(style) }
-                                Button("Renombrar…") { renaming = style; renameText = style.name }
-                                Button("Mostrar en Finder") {
+                                Button("Edit…") { state.editing = style }
+                                Button("Duplicate") { _ = store.duplicate(style) }
+                                Button("Rename…") { renaming = style; renameText = style.name }
+                                Button("Show in Finder") {
                                     NSWorkspace.shared.activateFileViewerSelecting([style.folder])
                                 }
                                 Divider()
-                                Button("Eliminar", role: .destructive) {
+                                Button("Delete", role: .destructive) {
                                     if state.selectedStyleID == style.id { state.selectedStyleID = nil }
                                     store.delete(style)
                                 }
@@ -136,7 +136,7 @@ struct StyleCard: View {
     }
 }
 
-// MARK: - Editor de Markdown
+// MARK: - Markdown editor
 
 struct EditorPane: View {
     @EnvironmentObject private var store: StyleStore
@@ -166,12 +166,12 @@ struct EditorPane: View {
                 } label: {
                     HStack(spacing: 7) {
                         Image(systemName: "eye").font(.system(size: 12, weight: .medium))
-                        Text("Vista previa")
+                        Text("Preview")
                     }
                 }
                 .buttonStyle(PrimaryButtonStyle(prominent: false))
                 .shadow(color: .black.opacity(0.12), radius: 8, y: 2)
-                .help("Vista previa del documento (⌘P)")
+                .help("Preview document (⌘P)")
 
                 Button {
                     state.export(store: store)
@@ -182,13 +182,13 @@ struct EditorPane: View {
                         } else {
                             Image(systemName: "arrow.down.doc").font(.system(size: 12, weight: .medium))
                         }
-                        Text(state.isExporting ? "Exportando…" : "Exportar PDF")
+                        Text(state.isExporting ? "Exporting…" : "Export PDF")
                     }
                 }
                 .buttonStyle(PrimaryButtonStyle())
                 .disabled(state.isExporting)
                 .shadow(color: .black.opacity(0.18), radius: 10, y: 3)
-                .help("Exportar a PDF con el estilo seleccionado (⌘E)")
+                .help("Export to PDF with the selected style (⌘E)")
             }
             .padding(22)
         }
@@ -217,7 +217,7 @@ struct Toast: View {
                 .font(.system(size: 12))
                 .lineLimit(2)
             if let url = message.fileURL {
-                Button("Mostrar") { NSWorkspace.shared.activateFileViewerSelecting([url]) }
+                Button("Show") { NSWorkspace.shared.activateFileViewerSelecting([url]) }
                     .buttonStyle(QuietButtonStyle())
             }
             Button {
@@ -251,14 +251,14 @@ struct RenameSheet: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
-            Text("Renombrar estilo").font(.system(size: 13, weight: .semibold))
-            TextField("Nombre", text: $name)
+            Text("Rename style").font(.system(size: 13, weight: .semibold))
+            TextField("Name", text: $name)
                 .textFieldStyle(.roundedBorder)
                 .frame(width: 260)
             HStack {
                 Spacer()
-                Button("Cancelar") { dismiss() }.buttonStyle(QuietButtonStyle())
-                Button("Guardar") {
+                Button("Cancel") { dismiss() }.buttonStyle(QuietButtonStyle())
+                Button("Save") {
                     let clean = name.trimmingCharacters(in: .whitespacesAndNewlines)
                     if !clean.isEmpty { commit(clean) }
                     dismiss()

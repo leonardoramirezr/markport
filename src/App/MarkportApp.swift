@@ -20,16 +20,16 @@ struct MarkportApp: App {
         .defaultSize(width: 1180, height: 800)
         .commands {
             CommandGroup(replacing: .newItem) {
-                Button("Nuevo estilo") {
-                    state.editing = DocStyle.new(name: store.uniqueName(base: "Estilo"))
+                Button("New Style") {
+                    state.editing = DocStyle.new(name: store.uniqueName(base: "Style"))
                 }
                 .keyboardShortcut("n")
             }
             CommandGroup(after: .saveItem) {
-                Button("Vista previa") { state.showingPreview = true }
+                Button("Preview") { state.showingPreview = true }
                     .keyboardShortcut("p")
                     .disabled(store.styles.isEmpty)
-                Button("Exportar PDF…") { state.export(store: store) }
+                Button("Export PDF…") { state.export(store: store) }
                     .keyboardShortcut("e")
                     .disabled(store.styles.isEmpty)
             }

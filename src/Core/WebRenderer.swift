@@ -7,13 +7,13 @@ enum RenderError: LocalizedError {
 
     var errorDescription: String? {
         switch self {
-        case .load(let m): return "No se pudo componer el documento: \(m)"
-        case .pdf(let m): return "No se pudo generar el PDF: \(m)"
+        case .load(let m): return "Could not compose the document: \(m)"
+        case .pdf(let m): return "Could not generate the PDF: \(m)"
         }
     }
 }
 
-/// Recibe el callback de NSPrintOperation.runModal(for:delegate:didRun:contextInfo:).
+/// Receives the callback from NSPrintOperation.runModal(for:delegate:didRun:contextInfo:).
 private final class PrintCompletion: NSObject {
     var handler: ((Bool) -> Void)?
 
@@ -25,14 +25,14 @@ private final class PrintCompletion: NSObject {
     }
 }
 
-/// Motor de composición: carga el HTML en un WKWebView fuera de pantalla y
-/// produce PDF paginado (via NSPrintOperation, que respeta @page y saltos)
-/// o miniaturas para la barra lateral.
+/// Composition engine: loads the HTML into an off-screen WKWebView and
+/// produces paginated PDF (via NSPrintOperation, which respects @page and
+/// page breaks) or thumbnails for the sidebar.
 @MainActor
 final class WebRenderer: NSObject, WKNavigationDelegate {
 
-    // Se crean al primer uso: instanciar un NSWindow durante el arranque
-    // interfiere con el montaje de la escena de SwiftUI.
+    // Created on first use: instantiating an NSWindow during startup
+    // interferes with SwiftUI's scene setup.
     private lazy var webView: WKWebView = {
         let configuration = WKWebViewConfiguration()
         configuration.suppressesIncrementalRendering = true
@@ -69,7 +69,7 @@ final class WebRenderer: NSObject, WKNavigationDelegate {
             pending = continuation
             webView.loadFileURL(fileURL, allowingReadAccessTo: readAccess)
         }
-        // Espera a que las fuentes (@font-face o del sistema) estén listas.
+        // Wait for the fonts (@font-face or system) to be ready.
         _ = try? await webView.evaluateJavaScript("document.fonts.ready.then(() => 1)")
     }
 
@@ -101,8 +101,8 @@ final class WebRenderer: NSObject, WKNavigationDelegate {
         operation.showsProgressPanel = false
         try? FileManager.default.removeItem(at: destination)
 
-        // `run()` bloquea el run loop y WebKit nunca entrega el número de
-        // páginas: hay que usar la variante modal, que sí lo cede.
+        // `run()` blocks the run loop and WebKit never reports the page
+        // count: we need the modal variant, which does yield it.
         let success: Bool = await withCheckedContinuation { continuation in
             printCompletion.handler = { continuation.resume(returning: $0) }
             operation.runModal(for: window,
@@ -112,11 +112,11 @@ final class WebRenderer: NSObject, WKNavigationDelegate {
         }
 
         guard success, FileManager.default.fileExists(atPath: destination.path) else {
-            throw RenderError.pdf("la impresión no produjo ningún archivo")
+            throw RenderError.pdf("printing did not produce any file")
         }
     }
 
-    // MARK: - Miniatura
+    // MARK: - Thumbnail
 
     func snapshot(markdown: String, style: DocStyle, width: CGFloat) async throws -> NSImage {
         let page = style.page

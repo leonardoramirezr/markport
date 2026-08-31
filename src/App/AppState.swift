@@ -9,8 +9,8 @@ final class AppState: ObservableObject {
     @Published var showingPreview = false
     @Published var message: Message?
 
-    /// El Markdown vive en el NSTextView; aquí solo guardamos la última
-    /// versión amortiguada para exportar y persistir.
+    /// The Markdown lives in the NSTextView; here we only keep the latest
+    /// debounced version for exporting and persisting.
     var markdown: String
 
     let markdownController = EditorController()
@@ -50,7 +50,7 @@ final class AppState: ObservableObject {
         let text = markdownController.text.isEmpty ? markdown : markdownController.text
         markdown = text
         guard !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
-            message = Message(text: "No hay Markdown que exportar.", isError: true)
+            message = Message(text: "There is no Markdown to export.", isError: true)
             return
         }
 
@@ -58,14 +58,14 @@ final class AppState: ObservableObject {
         panel.nameFieldStringValue = suggestedFilename(for: text)
         panel.allowedContentTypes = [.pdf]
         panel.canCreateDirectories = true
-        panel.title = "Exportar PDF"
+        panel.title = "Export PDF"
         guard panel.runModal() == .OK, let destination = panel.url else { return }
 
         isExporting = true
         Task {
             do {
                 try await renderer.exportPDF(markdown: text, style: style, to: destination)
-                message = Message(text: "PDF exportado a \(destination.lastPathComponent)", fileURL: destination)
+                message = Message(text: "PDF exported to \(destination.lastPathComponent)", fileURL: destination)
             } catch {
                 message = Message(text: error.localizedDescription, isError: true)
             }
@@ -78,6 +78,6 @@ final class AppState: ObservableObject {
         let allowed = CharacterSet.alphanumerics.union(CharacterSet(charactersIn: " -_"))
         let clean = title.unicodeScalars.filter { allowed.contains($0) }.map(String.init).joined()
             .trimmingCharacters(in: .whitespaces)
-        return (clean.isEmpty ? "Documento" : clean) + ".pdf"
+        return (clean.isEmpty ? "Document" : clean) + ".pdf"
     }
 }

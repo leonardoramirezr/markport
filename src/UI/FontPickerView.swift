@@ -1,8 +1,8 @@
 import AppKit
 import SwiftUI
 
-/// Selector de fuentes limitado a las familias realmente instaladas
-/// en el sistema: lo que se elige aquí existe al momento de exportar.
+/// Font picker limited to families actually installed
+/// on the system: what you pick here will exist at export time.
 struct FontPickerView: View {
     @Environment(\.dismiss) private var dismiss
     let onPick: (String) -> Void
@@ -23,7 +23,7 @@ struct FontPickerView: View {
                 Image(systemName: "magnifyingglass")
                     .font(.system(size: 11))
                     .foregroundStyle(Theme.faint)
-                TextField("Buscar fuente instalada", text: $query)
+                TextField("Search installed fonts", text: $query)
                     .textFieldStyle(.plain)
                     .font(.system(size: 13))
                 Text("\(filtered.count)")
@@ -58,12 +58,12 @@ struct FontPickerView: View {
 
             Divider()
             HStack {
-                Text("Se insertará como declaración `font-family` en el CSS.")
+                Text("Will be inserted as a `font-family` declaration in the CSS.")
                     .font(.system(size: 11))
                     .foregroundStyle(Theme.faint)
                 Spacer()
-                Button("Cancelar") { dismiss() }.buttonStyle(QuietButtonStyle())
-                Button("Insertar") { if let selection { pick(selection) } }
+                Button("Cancel") { dismiss() }.buttonStyle(QuietButtonStyle())
+                Button("Insert") { if let selection { pick(selection) } }
                     .buttonStyle(PrimaryButtonStyle())
                     .disabled(selection == nil)
                     .keyboardShortcut(.defaultAction)

@@ -1,10 +1,10 @@
 import AppKit
 import Foundation
 
-/// Traduce la regla `@page` del CSS del usuario a un `NSPrintInfo`,
-/// de modo que el PDF respete tamaño y márgenes declarados en la hoja de estilo.
+/// Translates the user's CSS `@page` rule into an `NSPrintInfo`,
+/// so the PDF respects the size and margins declared in the stylesheet.
 struct PageSetup: Equatable {
-    var paperSize: NSSize          // en puntos (1pt = 1/72")
+    var paperSize: NSSize          // in points (1pt = 1/72")
     var top: CGFloat
     var right: CGFloat
     var bottom: CGFloat
@@ -31,7 +31,7 @@ struct PageSetup: Equatable {
         "executive": NSSize(width: 521.86, height: 756)
     ]
 
-    /// Lee el primer bloque `@page { ... }` del CSS.
+    /// Reads the first `@page { ... }` block from the CSS.
     static func parse(css: String) -> PageSetup {
         var setup = PageSetup.a4
         guard let block = firstAtPageBlock(in: css) else { return setup }
@@ -61,10 +61,10 @@ struct PageSetup: Equatable {
             }
             if lengths.count >= 2 {
                 setup.paperSize = NSSize(width: lengths[0], height: lengths[1])
-                setup.label = "Personalizado"
+                setup.label = "Custom"
             } else if lengths.count == 1 {
                 setup.paperSize = NSSize(width: lengths[0], height: lengths[0])
-                setup.label = "Personalizado"
+                setup.label = "Custom"
             } else if let named {
                 setup.paperSize = named
                 setup.label = label
@@ -113,7 +113,7 @@ struct PageSetup: Equatable {
         return nil
     }
 
-    /// Convierte una longitud CSS a puntos.
+    /// Converts a CSS length to points.
     static func length(_ token: String) -> CGFloat? {
         let text = token.trimmingCharacters(in: .whitespaces).lowercased()
         let units: [(String, CGFloat)] = [
@@ -124,7 +124,7 @@ struct PageSetup: Equatable {
             guard let value = Double(text.dropLast(suffix.count)) else { return nil }
             return CGFloat(value) * factor
         }
-        if let value = Double(text) { return CGFloat(value) }  // sin unidad -> px CSS
+        if let value = Double(text) { return CGFloat(value) }  // no unit -> CSS px
         return nil
     }
 

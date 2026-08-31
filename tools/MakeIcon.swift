@@ -1,7 +1,7 @@
 import AppKit
 import Foundation
 
-// Genera el icono de Markport: marca minimalista (lineas de texto + flecha).
+// Generates the Markport icon: minimal mark (text lines + arrow).
 func drawIcon(size: CGFloat) -> NSImage {
     let image = NSImage(size: NSSize(width: size, height: size))
     image.lockFocus()
@@ -9,7 +9,7 @@ func drawIcon(size: CGFloat) -> NSImage {
     let s = size
     ctx.setShouldAntialias(true)
 
-    // Fondo redondeado, casi negro.
+    // Rounded background, near-black.
     let inset = s * 0.055
     let rect = CGRect(x: inset, y: inset, width: s - inset * 2, height: s - inset * 2)
     let bg = CGPath(roundedRect: rect, cornerWidth: s * 0.222, cornerHeight: s * 0.222, transform: nil)
@@ -17,7 +17,7 @@ func drawIcon(size: CGFloat) -> NSImage {
     ctx.setFillColor(NSColor(calibratedWhite: 0.07, alpha: 1).cgColor)
     ctx.fillPath()
 
-    // Tres lineas de texto.
+    // Three lines of text.
     let white = NSColor.white.cgColor
     ctx.setFillColor(white)
     let barHeight = s * 0.052
@@ -30,7 +30,7 @@ func drawIcon(size: CGFloat) -> NSImage {
         y -= barHeight * 2.05
     }
 
-    // Flecha de exportacion.
+    // Export arrow.
     let cx = s * 0.5
     let stemWidth = s * 0.062
     let stemTop = s * 0.44
@@ -64,4 +64,4 @@ for (base, scale) in variants {
     let name = scale == 1 ? "icon_\(base)x\(base).png" : "icon_\(base)x\(base)@2x.png"
     try? png.write(to: iconset.appendingPathComponent(name))
 }
-print("iconset listo en \(iconset.path)")
+print("iconset ready at \(iconset.path)")

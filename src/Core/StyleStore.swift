@@ -1,8 +1,8 @@
 import Foundation
 import SwiftUI
 
-/// Un estilo = una carpeta con `style.css`, `template.html`, `meta.json`
-/// y los recursos relativos (por ejemplo `fonts/`) que el CSS referencie.
+/// A style = a folder with `style.css`, `template.html`, `meta.json`
+/// and the relative resources (e.g. `fonts/`) referenced by the CSS.
 struct DocStyle: Identifiable, Equatable {
     var id: String
     var name: String
@@ -15,7 +15,7 @@ struct DocStyle: Identifiable, Equatable {
     var htmlURL: URL { folder.appendingPathComponent("template.html") }
     var page: PageSetup { PageSetup.parse(css: css) }
 
-    /// Huella del contenido: invalida miniaturas cuando algo cambia.
+    /// Content fingerprint: invalidates thumbnails when something changes.
     var fingerprint: String {
         var hasher = Hasher()
         hasher.combine(css)
@@ -104,9 +104,9 @@ final class StyleStore: ObservableObject {
     func duplicate(_ style: DocStyle) -> DocStyle {
         var copy = style
         copy.id = UUID().uuidString
-        copy.name = uniqueName(base: style.name + " copia")
+        copy.name = uniqueName(base: style.name + " copy")
         try? FileManager.default.createDirectory(at: copy.folder, withIntermediateDirectories: true)
-        // Arrastra los recursos (fuentes, imágenes) del estilo original.
+        // Pulls in the resources (fonts, images) from the original style.
         let fm = FileManager.default
         let items = (try? fm.contentsOfDirectory(at: style.folder, includingPropertiesForKeys: nil)) ?? []
         for item in items where !["style.css", "template.html", "meta.json"].contains(item.lastPathComponent) {
@@ -125,7 +125,7 @@ final class StyleStore: ObservableObject {
         return candidate
     }
 
-    /// Copia recursos (por ejemplo `.woff2`) a la carpeta del estilo.
+    /// Copies resources (e.g. `.woff2`) into the style's folder.
     @discardableResult
     func importResource(_ url: URL, into style: DocStyle, subfolder: String? = nil) -> String? {
         let fm = FileManager.default
