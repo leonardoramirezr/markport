@@ -49,11 +49,37 @@ final class WebRenderer: NSObject, WKNavigationDelegate {
                            backing: .buffered,
                            defer: true)
         win.isReleasedWhenClosed = false
+        // Off-screen coordinates alone aren't reliable: AppKit can constrain
+        // a window whose frame doesn't intersect any real screen back onto
+        // the main display (visible, cascaded) once it's ordered on screen.
+        // Making it fully transparent keeps it invisible even then.
+        win.alphaValue = 0
+        win.ignoresMouseEvents = true
+        win.hasShadow = false
+        // While the app is fullscreen, a newly created window is placed on
+        // the active (fullscreen) Space; since (-30000, -30000) doesn't
+        // intersect that Space's screen bounds, AppKit falls back to a
+        // visible cascaded position. `.transient` keeps it off Spaces/
+        // Exposé bookkeeping; alpha 0 above keeps it invisible regardless.
+        win.collectionBehavior = [.transient, .ignoresCycle, .fullScreenAuxiliary]
         win.contentView = NSView(frame: NSRect(x: 0, y: 0, width: 612, height: 792))
         win.contentView?.addSubview(webView)
         win.orderBack(nil)
+        isWindowLoaded = true
         return win
     }()
+
+    deinit {
+        MainActor.assumeIsolated {
+            if isWindowLoaded {
+                window.orderOut(nil)
+                window.close()
+            }
+        }
+    }
+
+    /// Avoids instantiating `window` from `deinit` just to close it.
+    private var isWindowLoaded = false
 
     private var pending: CheckedContinuation<Void, Error>?
     private let printCompletion = PrintCompletion()
