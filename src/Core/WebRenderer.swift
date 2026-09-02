@@ -1,5 +1,6 @@
 import AppKit
 import WebKit
+import PDFKit
 
 enum RenderError: LocalizedError {
     case load(String)
@@ -95,6 +96,13 @@ final class WebRenderer: NSObject, WKNavigationDelegate {
 
         try await load(fileURL: source, readAccess: style.folder, viewport: page.contentSize)
 
+        // WebKit's print pipeline clips all drawing -- including backgrounds --
+        // to the content box defined by `@page { margin }`, so the page margins
+        // themselves are never painted. Detect the intended page color now,
+        // while the document is loaded, and paint it in behind the PDF's own
+        // content after printing so the exported margins match the on-screen background.
+        let backgroundColor = await detectPageBackgroundColor()
+
         let info = page.printInfo(savingTo: destination)
         let operation = webView.printOperation(with: info)
         operation.showsPrintPanel = false
@@ -114,6 +122,71 @@ final class WebRenderer: NSObject, WKNavigationDelegate {
         guard success, FileManager.default.fileExists(atPath: destination.path) else {
             throw RenderError.pdf("printing did not produce any file")
         }
+
+        if let backgroundColor {
+            try? Self.paintPageBackground(of: destination, color: backgroundColor)
+        }
+    }
+
+    /// Reads the effective page background from the loaded document (`html`,
+    /// falling back to `body`), so the PDF can be given the same color even
+    /// though WebKit's print engine won't paint it into the page margins itself.
+    private func detectPageBackgroundColor() async -> CGColor? {
+        let js = """
+        (function () {
+            function isTransparent(c) { return !c || c === 'rgba(0, 0, 0, 0)' || c === 'transparent'; }
+            var htmlBg = getComputedStyle(document.documentElement).backgroundColor;
+            if (!isTransparent(htmlBg)) return htmlBg;
+            var bodyBg = getComputedStyle(document.body).backgroundColor;
+            if (!isTransparent(bodyBg)) return bodyBg;
+            return null;
+        })();
+        """
+        guard let css = try? await webView.evaluateJavaScript(js) as? String else { return nil }
+        return Self.parseCSSColor(css)
+    }
+
+    /// Parses a computed-style color string (`rgb(r, g, b)` / `rgba(r, g, b, a)`).
+    private static func parseCSSColor(_ css: String) -> CGColor? {
+        let inner = css
+            .replacingOccurrences(of: "rgba(", with: "")
+            .replacingOccurrences(of: "rgb(", with: "")
+            .replacingOccurrences(of: ")", with: "")
+        let parts = inner.split(separator: ",").map { $0.trimmingCharacters(in: .whitespaces) }
+        guard parts.count >= 3,
+              let r = Double(parts[0]), let g = Double(parts[1]), let b = Double(parts[2]) else { return nil }
+        if parts.count >= 4, let a = Double(parts[3]), a <= 0 { return nil }
+        return NSColor(srgbRed: r / 255, green: g / 255, blue: b / 255, alpha: 1).cgColor
+    }
+
+    /// Fills every page of the PDF at `url` with `color` behind its existing
+    /// (vector) content, so the page background reaches all the way to the
+    /// physical edges instead of stopping at the printable content box.
+    private static func paintPageBackground(of url: URL, color: CGColor) throws {
+        guard let document = PDFDocument(url: url), let firstPage = document.page(at: 0) else {
+            throw RenderError.pdf("could not reopen the generated PDF")
+        }
+        let output = NSMutableData()
+        guard let consumer = CGDataConsumer(data: output as CFMutableData) else {
+            throw RenderError.pdf("could not create a PDF writer")
+        }
+        var mediaBox = firstPage.bounds(for: .mediaBox)
+        guard let context = CGContext(consumer: consumer, mediaBox: &mediaBox, nil) else {
+            throw RenderError.pdf("could not create a PDF context")
+        }
+        for index in 0..<document.pageCount {
+            guard let page = document.page(at: index) else { continue }
+            let box = page.bounds(for: .mediaBox)
+            context.beginPDFPage(nil)
+            context.saveGState()
+            context.setFillColor(color)
+            context.fill(box)
+            context.restoreGState()
+            page.draw(with: .mediaBox, to: context)
+            context.endPDFPage()
+        }
+        context.closePDF()
+        try output.write(to: url, options: .atomic)
     }
 
     // MARK: - Thumbnail
