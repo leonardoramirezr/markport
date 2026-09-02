@@ -65,6 +65,16 @@ enum Renderer {
         if cssFilename != "style.css" {
             html = html.replacingOccurrences(of: "style.css", with: cssFilename)
         }
+        // Cache-bust the stylesheet reference: the style editor keeps a single
+        // WKWebView alive and reloads this same-named file on every CSS edit,
+        // and WebKit can otherwise keep serving the previous CSS content.
+        if let regex = try? NSRegularExpression(
+            pattern: "(href=[\"'])\(NSRegularExpression.escapedPattern(for: cssFilename))([\"'])")
+        {
+            let range = NSRange(html.startIndex..., in: html)
+            let bust = "$1\(cssFilename)?v=\(abs(style.css.hashValue))$2"
+            html = regex.stringByReplacingMatches(in: html, range: range, withTemplate: bust)
+        }
         let url = style.folder.appendingPathComponent(filename)
         try html.write(to: url, atomically: true, encoding: .utf8)
         return url
