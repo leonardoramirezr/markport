@@ -228,10 +228,17 @@ final class WebRenderer: NSObject, WKNavigationDelegate {
             try? FileManager.default.removeItem(at: style.folder.appendingPathComponent(Renderer.draftCSSName))
         }
 
-        try await load(fileURL: source, readAccess: style.folder, viewport: page.paperSize)
+        // A plain (non-print) WKWebView load treats the view's frame width
+        // (in AppKit points) as a literal CSS pixel count, unlike WebKit's
+        // print pipeline, which lays out CSS pixels against the page's true
+        // physical size (96px = 1in = 72pt). Scale the viewport by 96/72 so
+        // text reflows the same way it will when printed/exported.
+        let cssSize = NSSize(width: page.paperSize.width * (96.0 / 72.0),
+                             height: page.paperSize.height * (96.0 / 72.0))
+        try await load(fileURL: source, readAccess: style.folder, viewport: cssSize)
 
         let configuration = WKSnapshotConfiguration()
-        configuration.rect = NSRect(origin: .zero, size: page.paperSize)
+        configuration.rect = NSRect(origin: .zero, size: cssSize)
         configuration.snapshotWidth = NSNumber(value: Double(width))
         configuration.afterScreenUpdates = true
         return try await withCheckedThrowingContinuation { continuation in

@@ -286,7 +286,15 @@ struct StylePreviewWeb: NSViewRepresentable {
 
     func updateNSView(_ webView: WKWebView, context: Context) {
         let page = style.page
-        let zoom = max(0.15, targetWidth / max(page.paperSize.width, 1))
+        // A plain (non-print) WKWebView load treats the view's frame width
+        // (in AppKit points) as a literal CSS pixel count, with no further
+        // conversion -- unlike WebKit's print pipeline, which lays out CSS
+        // pixels against the page's true physical size (96px = 1in = 72pt).
+        // Zooming by paperSize.width alone therefore reflows text into a
+        // column ~33% narrower than what actually prints, so it reads
+        // larger relative to the page. Scale the zoom by 72/96 so the
+        // effective CSS-pixel viewport matches the printed page's.
+        let zoom = max(0.15, targetWidth / max(page.paperSize.width, 1) * (72.0 / 96.0))
         if abs(webView.pageZoom - zoom) > 0.001 { webView.pageZoom = zoom }
 
         let signature = "\(style.fingerprint)|\(markdown.hashValue)"
